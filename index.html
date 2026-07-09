@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>불량 사진, 한 장도 필요 없습니다 — AI 표면검사</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --ink:#0B1118;
+    --panel:#121B26;
+    --panel2:#0E1620;
+    --line:#22303F;
+    --text:#E9EFF5;
+    --dim:#8DA0B3;
+    --ok:#3DDC84;
+    --ng:#FF5252;
+    --scan:#4FC3F7;
+    --mono:'IBM Plex Mono','SFMono-Regular',Consolas,'Courier New',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:var(--ink);
+    color:var(--text);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .hero{
+    max-width:1080px;
+    margin:0 auto;
+    padding:64px 24px 80px;
+  }
+
+  /* ── eyebrow ── */
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);
+    font-size:12px;letter-spacing:.14em;
+    color:var(--scan);
+    border:1px solid var(--line);
+    padding:6px 12px;border-radius:2px;
+    margin-bottom:28px;
+  }
+  .eyebrow::before{
+    content:"";width:6px;height:6px;border-radius:50%;
+    background:var(--scan);
+    animation:blink 2s infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* ── headline ── */
+  h1{
+    font-size:clamp(34px,6vw,62px);
+    font-weight:900;
+    line-height:1.16;
+    letter-spacing:-0.02em;
+    margin-bottom:20px;
+    word-break:keep-all;
+  }
+  h1 .zero{color:var(--ok)}
+  .sub{
+    font-size:clamp(16px,2.2vw,20px);
+    color:var(--dim);
+    max-width:560px;
+    word-break:keep-all;
+    margin-bottom:40px;
+  }
+  .sub strong{color:var(--text);font-weight:700}
+
+  /* ── stats ── */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:4px;
+    overflow:hidden;
+    margin-bottom:48px;
+  }
+  .stat{
+    background:var(--panel);
+    padding:20px 16px;
+    text-align:center;
+  }
+  .stat .num{
+    font-family:var(--mono);
+    font-size:clamp(26px,4.4vw,40px);
+    font-weight:700;
+    display:block;
+    line-height:1.1;
+  }
+  .stat .lbl{
+    font-size:13px;color:var(--dim);
+    margin-top:6px;display:block;
+    word-break:keep-all;
+  }
+  .stat.zero .num{color:var(--ok);font-size:clamp(32px,5.4vw,50px)}
+  .stat.zero{
+    background:linear-gradient(180deg,rgba(61,220,132,.08),var(--panel));
+    position:relative;
+  }
+  .stat.zero::after{
+    content:"필요 없음";
+    position:absolute;top:8px;right:8px;
+    font-size:10px;font-family:var(--mono);
+    color:var(--ok);border:1px solid rgba(61,220,132,.4);
+    padding:2px 6px;border-radius:2px;letter-spacing:.08em;
+  }
+
+  /* ── race panel ── */
+  .race{
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:var(--panel2);
+    overflow:hidden;
+    margin-bottom:44px;
+  }
+  .race-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 18px;
+    border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--dim);
+  }
+  .race-head .clock{color:var(--scan)}
+  .track{padding:20px 18px}
+  .track + .track{border-top:1px dashed var(--line)}
+  .track-title{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:12px;gap:12px;
+  }
+  .track-title h3{font-size:15px;font-weight:700;word-break:keep-all}
+  .track-title .status{
+    font-family:var(--mono);font-size:12px;color:var(--dim);
+    text-align:right;min-height:1.2em;
+  }
+  .track.ours .track-title h3{color:var(--ok)}
+  .track.ours .status{color:var(--ok)}
+
+  .bar{
+    height:10px;border-radius:5px;
+    background:#1A2532;
+    overflow:hidden;position:relative;
+  }
+  .bar .fill{
+    height:100%;width:0%;
+    border-radius:5px;
+    transition:width .3s linear;
+  }
+  .track.old .fill{background:#54697E}
+  .track.ours .fill{background:linear-gradient(90deg,#2BA968,var(--ok))}
+
+  .seglabels{
+    display:flex;justify-content:space-between;
+    margin-top:8px;
+    font-size:11px;color:var(--dim);
+    font-family:var(--mono);
+    word-break:keep-all;
+  }
+  .seglabels span{flex:1;text-align:center}
+  .seglabels span:first-child{text-align:left}
+  .seglabels span:last-child{text-align:right}
+  .track.ours .seglabels .done{color:var(--ok)}
+
+  /* ── judgment feed ── */
+  .feed{
+    margin-top:16px;
+    display:none;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:var(--ink);
+    padding:10px 12px;
+    font-family:var(--mono);
+    font-size:12px;
+  }
+  .feed.on{display:block}
+  .feed-head{
+    display:flex;justify-content:space-between;
+    color:var(--dim);font-size:11px;
+    padding-bottom:8px;margin-bottom:8px;
+    border-bottom:1px solid var(--line);
+  }
+  .feed-head .cnt{color:var(--text)}
+  .feed-head .cnt .ngc{color:var(--ng)}
+  .feed-rows{display:flex;flex-direction:column;gap:5px;min-height:96px}
+  .frow{
+    display:flex;justify-content:space-between;align-items:center;
+    opacity:0;transform:translateY(4px);
+    animation:rowin .25s forwards;
+  }
+  @keyframes rowin{to{opacity:1;transform:none}}
+  .frow .id{color:var(--dim)}
+  .badge{
+    font-weight:700;padding:1px 8px;border-radius:2px;font-size:11px;
+    letter-spacing:.08em;
+  }
+  .badge.ok{color:var(--ok);border:1px solid rgba(61,220,132,.45)}
+  .badge.ng{color:#fff;background:var(--ng)}
+  .frow .defect{color:var(--ng);font-size:11px}
+
+  /* ── CTA ── */
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+  .btn{
+    display:inline-block;text-decoration:none;
+    font-size:16px;font-weight:700;
+    padding:14px 26px;border-radius:4px;
+    word-break:keep-all;
+  }
+  .btn.primary{
+    background:var(--ok);color:#07130C;
+  }
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn.ghost{
+    color:var(--text);border:1px solid var(--line);
+  }
+  .btn.ghost:hover{border-color:var(--dim)}
+  .trust{
+    font-size:13px;color:var(--dim);
+    font-family:var(--mono);
+    word-break:keep-all;
+  }
+
+  /* ── PoC modal ── */
+  .overlay{
+    position:fixed;inset:0;z-index:50;
+    background:rgba(4,8,12,.72);
+    backdrop-filter:blur(2px);
+    display:none;align-items:flex-start;justify-content:center;
+    overflow-y:auto;padding:40px 16px;
+  }
+  .overlay.on{display:flex}
+  .modal{
+    width:100%;max-width:520px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:28px 26px 26px;
+    position:relative;
+    animation:modalin .22s ease;
+  }
+  @keyframes modalin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .modal h2{font-size:22px;font-weight:800;margin-bottom:6px;word-break:keep-all}
+  .modal .mdesc{font-size:14px;color:var(--dim);margin-bottom:22px;word-break:keep-all}
+  .mclose{
+    position:absolute;top:14px;right:14px;
+    background:none;border:1px solid var(--line);border-radius:4px;
+    color:var(--dim);font-size:16px;line-height:1;
+    width:32px;height:32px;cursor:pointer;
+  }
+  .mclose:hover{color:var(--text)}
+  .field{margin-bottom:16px}
+  .field label{
+    display:block;font-size:13px;font-weight:700;
+    margin-bottom:6px;color:var(--text);
+  }
+  .field label .req{color:var(--ok)}
+  .field input[type=text],.field input[type=tel],.field input[type=email],
+  .field select,.field textarea{
+    width:100%;
+    background:var(--ink);
+    border:1px solid var(--line);
+    border-radius:4px;
+    color:var(--text);
+    font-family:inherit;font-size:15px;
+    padding:11px 12px;
+  }
+  .field textarea{resize:vertical;min-height:72px}
+  .field input:focus,.field select:focus,.field textarea:focus{
+    outline:2px solid var(--scan);outline-offset:0;border-color:transparent;
+  }
+  .field .hint{font-size:12px;color:var(--dim);margin-top:5px}
+  .radio-row{display:flex;flex-wrap:wrap;gap:8px}
+  .radio-row label{
+    flex:1;min-width:120px;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    border:1px solid var(--line);border-radius:4px;
+    padding:10px 8px;font-size:13px;font-weight:500;
+    cursor:pointer;color:var(--dim);
+    word-break:keep-all;text-align:center;margin:0;
+  }
+  .radio-row input{position:absolute;opacity:0;pointer-events:none}
+  .radio-row label:has(input:checked){
+    border-color:var(--ok);color:var(--ok);
+    background:rgba(61,220,132,.07);
+  }
+  .radio-row label:has(input:focus-visible){outline:2px solid var(--scan)}
+  .msubmit{
+    width:100%;margin-top:6px;
+    background:var(--ok);color:#07130C;
+    border:none;border-radius:4px;
+    font-size:16px;font-weight:800;font-family:inherit;
+    padding:14px;cursor:pointer;
+  }
+  .msubmit:hover{filter:brightness(1.08)}
+  .msubmit:disabled{opacity:.5;cursor:wait}
+  .mfoot{font-size:12px;color:var(--dim);margin-top:12px;text-align:center;word-break:keep-all}
+  .ferr{color:var(--ng);font-size:12px;margin-top:5px;display:none}
+  .field.invalid .ferr{display:block}
+  .field.invalid input,.field.invalid select{border-color:var(--ng)}
+
+  .success{display:none;text-align:center;padding:28px 6px 10px}
+  .success.on{display:block}
+  .success .mark{
+    width:56px;height:56px;border-radius:50%;
+    border:2px solid var(--ok);color:var(--ok);
+    font-size:26px;line-height:52px;
+    margin:0 auto 16px;
+  }
+  .success h3{font-size:20px;font-weight:800;margin-bottom:8px}
+  .success p{font-size:14px;color:var(--dim);word-break:keep-all}
+
+  /* ── footer / company ── */
+  .footer{
+    border-top:1px solid var(--line);
+    background:var(--panel2);
+    margin-top:40px;
+  }
+  .footer-inner{
+    max-width:1080px;margin:0 auto;
+    padding:48px 24px 40px;
+  }
+  .footer-cta{
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+    gap:16px;
+    padding-bottom:36px;margin-bottom:36px;
+    border-bottom:1px solid var(--line);
+  }
+  .footer-cta p{font-size:18px;font-weight:800;word-break:keep-all}
+  .footer-cta p span{color:var(--ok)}
+  .company{
+    display:grid;
+    grid-template-columns:1.2fr 1fr;
+    gap:32px;
+  }
+  .company h4{
+    font-size:15px;font-weight:800;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .company .uni{
+    font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+    color:var(--scan);border:1px solid rgba(79,195,247,.4);
+    padding:2px 7px;border-radius:2px;font-weight:400;
+  }
+  .company .about{
+    font-size:13.5px;color:var(--dim);
+    word-break:keep-all;line-height:1.7;
+  }
+  .biz{
+    font-size:12.5px;color:var(--dim);
+    font-family:var(--mono);
+    line-height:2;
+  }
+  .biz a{color:var(--dim);text-decoration:none}
+  .biz a:hover{color:var(--text)}
+  .copyright{
+    margin-top:32px;padding-top:20px;
+    border-top:1px solid var(--line);
+    font-size:11.5px;color:#5B7086;
+    font-family:var(--mono);
+  }
+  @media (max-width:680px){
+    .company{grid-template-columns:1fr}
+  }
+
+  @media (max-width:560px){
+    .hero{padding:44px 18px 60px}
+    .stats{grid-template-columns:repeat(3,1fr)}
+    .stat{padding:14px 8px}
+    .seglabels{font-size:10px}
+    .track-title{flex-direction:column;align-items:flex-start;gap:4px}
+    .track-title .status{text-align:left}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .eyebrow::before{animation:none}
+    .frow{animation:none;opacity:1;transform:none}
+    .bar .fill{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="eyebrow">AI 표면검사 · 제조 SME 전용</div>
+
+  <h1>불량 사진,<br>한 장도 필요 없습니다</h1>
+  <p class="sub">양품 <strong>300장</strong>만 보여주세요. <strong>3시간</strong> 뒤, 라인에서 검사가 시작됩니다. 불량 데이터 수집도, 라벨링도 없습니다.</p>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="num">300</span>
+      <span class="lbl">양품 이미지</span>
+    </div>
+    <div class="stat zero">
+      <span class="num">0</span>
+      <span class="lbl">불량 이미지</span>
+    </div>
+    <div class="stat">
+      <span class="num">3h</span>
+      <span class="lbl">학습 시간</span>
+    </div>
+  </div>
+
+  <div class="race" id="race">
+    <div class="race-head">
+      <span>구축 기간 비교</span>
+      <span class="clock" id="clock">DAY 0 · 09:00</span>
+    </div>
+
+    <div class="track old">
+      <div class="track-title">
+        <h3>기존 딥러닝 검사</h3>
+        <span class="status" id="oldStatus">불량 샘플 수집 중…</span>
+      </div>
+      <div class="bar"><div class="fill" id="oldFill"></div></div>
+      <div class="seglabels">
+        <span>불량 수집 3개월</span><span>라벨링 2주</span><span>모델 튜닝</span>
+      </div>
+    </div>
+
+    <div class="track ours">
+      <div class="track-title">
+        <h3>양품 학습 방식</h3>
+        <span class="status" id="ourStatus">양품 촬영 중…</span>
+      </div>
+      <div class="bar"><div class="fill" id="ourFill"></div></div>
+      <div class="seglabels" id="ourSegs">
+        <span>양품 촬영</span><span>학습 3시간</span><span>검사 시작</span>
+      </div>
+
+      <div class="feed" id="feed">
+        <div class="feed-head">
+          <span>실시간 판정</span>
+          <span class="cnt">검사 <span id="total">0</span>건 · <span class="ngc">NG <span id="ngTotal">0</span></span></span>
+        </div>
+        <div class="feed-rows" id="rows"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <button class="btn primary" id="pocBtn" type="button">48시간 무료 PoC 신청</button>
+    <a class="btn ghost" id="reportBtn" href="sample-report.pdf" download>샘플 검사 리포트 받기</a>
+  </div>
+  <p class="trust">설치 없이 원격 진행 · 스마트공장 지원사업 연계 가능 · 데이터는 PoC 종료 후 전량 폐기</p>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+
+    <div class="footer-cta">
+      <p>양품 이미지 <span>300장</span>이면, 이번 주 안에 결과를 확인하실 수 있습니다.</p>
+      <button class="btn primary" id="pocBtn2" type="button">48시간 무료 PoC 신청</button>
+    </div>
+
+    <div class="company">
+      <div>
+        <h4>(주) 파시디엘 <span class="uni">부산대학교 산학기술</span></h4>
+        <p class="about">
+          부산대학교 산학 기술을 기반으로 발전소·제조 현장의 AI 제어 및 검사 시스템을
+          구축해 온 산업 AI 전문 기업입니다. 현장에서 검증된 이상 탐지 기술을
+          중소 제조기업이 부담 없이 도입할 수 있는 형태로 제공합니다.
+        </p>
+      </div>
+      <div class="biz">
+        부산광역시 금정구 부산대학로63번길 2, 산학협동관 611호<br>
+        사업자등록번호 398-81-01962<br>
+        Tel <a href="tel:051-581-0605">051-581-0605</a> · Email <a href="mailto:pashidl@naver.com">pashidl@naver.com</a>
+      </div>
+    </div>
+
+    <div class="copyright">&copy; 2026 PashiDL Co., Ltd. All rights reserved.</div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal">
+    <button class="mclose" id="mClose" aria-label="닫기">&times;</button>
+
+    <div id="formWrap">
+      <h2 id="mTitle">48시간 무료 PoC 신청</h2>
+      <p class="mdesc">아래 정보만 남겨주시면 담당 엔지니어가 당일 연락드립니다. 방문·설치 없이 원격으로 진행됩니다.</p>
+
+      <form id="pocForm" novalidate>
+        <div class="field" data-name="company">
+          <label>회사명 <span class="req">*</span></label>
+          <input type="text" name="company" placeholder="예: 한빛정밀">
+          <div class="ferr">회사명을 입력해 주세요.</div>
+        </div>
+
+        <div class="field" data-name="name">
+          <label>담당자 성함 / 직함 <span class="req">*</span></label>
+          <input type="text" name="name" placeholder="예: 김철수 품질팀장">
+          <div class="ferr">담당자 성함을 입력해 주세요.</div>
+        </div>
+
+        <div class="field" data-name="phone">
+          <label>연락처 <span class="req">*</span></label>
+          <input type="tel" name="phone" placeholder="010-0000-0000">
+          <div class="ferr">연락 가능한 번호를 입력해 주세요.</div>
+        </div>
+
+        <div class="field" data-name="email">
+          <label>이메일 <span class="req">*</span></label>
+          <input type="email" name="email" placeholder="name@company.co.kr">
+          <div class="ferr">올바른 이메일을 입력해 주세요.</div>
+        </div>
+
+        <div class="field" data-name="target">
+          <label>검사 대상 제품 / 소재 <span class="req">*</span></label>
+          <input type="text" name="target" placeholder="예: 사출 플라스틱 커버, 금속 프레스 부품">
+          <div class="ferr">검사 대상을 간단히 적어주세요.</div>
+        </div>
+
+        <div class="field">
+          <label>현재 검사 방식</label>
+          <select name="current">
+            <option value="">선택해 주세요 (선택)</option>
+            <option>전수 육안 검사</option>
+            <option>샘플링 육안 검사</option>
+            <option>룰베이스 비전 장비 사용 중</option>
+            <option>기존 AI 검사 장비 사용 중</option>
+            <option>기타</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>양품 이미지 확보</label>
+          <div class="radio-row">
+            <label><input type="radio" name="images" value="보유">200장 이상 보유</label>
+            <label><input type="radio" name="images" value="촬영 필요">촬영이 필요함</label>
+            <label><input type="radio" name="images" value="모름">잘 모르겠음</label>
+          </div>
+          <div class="hint">촬영 환경이 없어도 괜찮습니다. 촬영 가이드를 함께 보내드립니다.</div>
+        </div>
+
+        <div class="field">
+          <label>문의 내용</label>
+          <textarea name="memo" placeholder="검사 환경, 생산량, 일정 등 자유롭게 적어주세요 (선택)"></textarea>
+        </div>
+
+        <button class="msubmit" id="mSubmit" type="submit">신청하기</button>
+        <p class="mfoot">입력하신 정보는 PoC 상담 목적 외에 사용되지 않습니다.</p>
+      </form>
+    </div>
+
+    <div class="success" id="successBox">
+      <div class="mark">&#10003;</div>
+      <h3>신청이 접수되었습니다</h3>
+      <p>영업일 기준 당일 내에 담당 엔지니어가 연락드립니다.<br>양품 이미지가 준비되어 있다면 48시간 내 결과 리포트를 받아보실 수 있습니다.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const oldFill = document.getElementById('oldFill');
+  const ourFill = document.getElementById('ourFill');
+  const oldStatus = document.getElementById('oldStatus');
+  const ourStatus = document.getElementById('ourStatus');
+  const clock = document.getElementById('clock');
+  const feed = document.getElementById('feed');
+  const rows = document.getElementById('rows');
+  const totalEl = document.getElementById('total');
+  const ngEl = document.getElementById('ngTotal');
+  const segs = document.getElementById('ourSegs').children;
+
+  const defects = ['스크래치','이물','찍힘','기포','오염'];
+  let timers = [];
+  function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
+  function clearAll(){ timers.forEach(clearTimeout); timers = []; }
+
+  function addRow(isNG){
+    const id = 'PN-' + String(Math.floor(Math.random()*9000)+1000);
+    const row = document.createElement('div');
+    row.className = 'frow';
+    if(isNG){
+      const d = defects[Math.floor(Math.random()*defects.length)];
+      row.innerHTML = '<span class="id">'+id+'</span><span class="defect">결함: '+d+'</span><span class="badge ng">NG</span>';
+    } else {
+      row.innerHTML = '<span class="id">'+id+'</span><span></span><span class="badge ok">OK</span>';
+    }
+    rows.appendChild(row);
+    while(rows.children.length > 5) rows.removeChild(rows.firstChild);
+  }
+
+  function finishedState(){
+    oldFill.style.width = '34%';
+    oldStatus.textContent = '불량 샘플 수집 중… (D+92)';
+    ourFill.style.width = '100%';
+    ourStatus.textContent = '검사 가동 중';
+    for(const s of segs) s.classList.add('done');
+    clock.textContent = 'DAY 0 · 17:00';
+    feed.classList.add('on');
+    totalEl.textContent = '1,248';
+    ngEl.textContent = '3';
+    addRow(false); addRow(false); addRow(true); addRow(false); addRow(false);
+  }
+
+  if(reduced){ finishedState(); return; }
+
+  let total = 0, ng = 0;
+  function loop(){
+    clearAll();
+    rows.innerHTML = '';
+    total = 0; ng = 0;
+    totalEl.textContent = '0'; ngEl.textContent = '0';
+    feed.classList.remove('on');
+    for(const s of segs) s.classList.remove('done');
+    oldFill.style.transition = 'none'; ourFill.style.transition = 'none';
+    oldFill.style.width = '0%'; ourFill.style.width = '0%';
+    oldStatus.textContent = '불량 샘플 수집 중…';
+    ourStatus.textContent = '양품 촬영 중…';
+    clock.textContent = 'DAY 0 · 09:00';
+
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      // old track: crawls, never finishes in the loop
+      oldFill.style.transition = 'width 13s linear';
+      oldFill.style.width = '34%';
+
+      // our track: three quick stages
+      ourFill.style.transition = 'width 1.6s ease';
+      ourFill.style.width = '33%';
+      later(()=>{
+        segs[0].classList.add('done');
+        ourStatus.textContent = 'AI 학습 중… (3시간)';
+        clock.textContent = 'DAY 0 · 11:30';
+        ourFill.style.transition = 'width 2.2s ease';
+        ourFill.style.width = '72%';
+      }, 1700);
+      later(()=>{
+        segs[1].classList.add('done');
+        ourStatus.textContent = '검사 시작';
+        clock.textContent = 'DAY 0 · 14:30';
+        ourFill.style.transition = 'width 1s ease';
+        ourFill.style.width = '100%';
+      }, 4100);
+      later(()=>{
+        segs[2].classList.add('done');
+        ourStatus.textContent = '검사 가동 중';
+        clock.textContent = 'DAY 0 · 17:00';
+        oldStatus.textContent = '불량 샘플 수집 중… (D+92)';
+        feed.classList.add('on');
+        // judgment feed: mostly OK, occasional NG
+        let i = 0;
+        const seq = [0,0,0,1,0,0,0,0,1,0,0,0];
+        function tick(){
+          if(i >= seq.length) return;
+          const isNG = seq[i] === 1;
+          addRow(isNG);
+          total += Math.floor(Math.random()*40)+20;
+          if(isNG) ng += 1;
+          totalEl.textContent = total.toLocaleString();
+          ngEl.textContent = ng;
+          i++;
+          later(tick, 620);
+        }
+        tick();
+      }, 5300);
+
+      later(loop, 14500);
+    }));
+  }
+  loop();
+})();
+</script>
+
+<script>
+(function(){
+  /* ────────────────────────────────────────────────
+     폼 전송 설정: 아래 FORM_ENDPOINT에 Formspree 등의
+     전송 URL을 넣으면 해당 주소로 POST 됩니다.
+     비워두면 mailto로 폴백됩니다(수신 메일 주소 수정 필요).
+  ──────────────────────────────────────────────── */
+  const FORM_ENDPOINT = '';                    // 예: 'https://formspree.io/f/xxxxxxx'
+  const FALLBACK_MAIL = 'pashidl@naver.com';
+
+  const overlay = document.getElementById('overlay');
+  const pocBtn = document.getElementById('pocBtn');
+  const mClose = document.getElementById('mClose');
+  const form = document.getElementById('pocForm');
+  const formWrap = document.getElementById('formWrap');
+  const successBox = document.getElementById('successBox');
+  const submitBtn = document.getElementById('mSubmit');
+  let lastFocus = null;
+
+  function open(){
+    lastFocus = document.activeElement;
+    overlay.classList.add('on');
+    document.body.style.overflow = 'hidden';
+    const first = form.querySelector('input');
+    if(first) first.focus();
+  }
+  function close(){
+    overlay.classList.remove('on');
+    document.body.style.overflow = '';
+    if(lastFocus) lastFocus.focus();
+  }
+  pocBtn.addEventListener('click', open);
+  const pocBtn2 = document.getElementById('pocBtn2');
+  if(pocBtn2) pocBtn2.addEventListener('click', open);
+  mClose.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if(e.target === overlay) close(); });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && overlay.classList.contains('on')) close();
+  });
+
+  function validate(){
+    let ok = true;
+    const required = ['company','name','phone','email','target'];
+    required.forEach(n => {
+      const fieldBox = form.querySelector('.field[data-name="'+n+'"]');
+      const input = form.elements[n];
+      let valid = input.value.trim().length > 0;
+      if(n === 'email' && valid) valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(input.value.trim());
+      if(n === 'phone' && valid) valid = input.value.replace(/[^0-9]/g,'').length >= 9;
+      fieldBox.classList.toggle('invalid', !valid);
+      if(!valid && ok){ input.focus(); ok = false; }
+      else if(!valid){ ok = false; }
+    });
+    return ok;
+  }
+
+  function collect(){
+    const d = {};
+    ['company','name','phone','email','target','current','memo'].forEach(n => {
+      d[n] = (form.elements[n].value || '').trim();
+    });
+    const img = form.querySelector('input[name="images"]:checked');
+    d.images = img ? img.value : '';
+    d.submittedAt = new Date().toISOString();
+    d.source = 'landing-hero';
+    return d;
+  }
+
+  function showSuccess(){
+    formWrap.style.display = 'none';
+    successBox.classList.add('on');
+  }
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    if(!validate()) return;
+    const data = collect();
+
+    if(FORM_ENDPOINT){
+      submitBtn.disabled = true;
+      submitBtn.textContent = '전송 중…';
+      try{
+        const res = await fetch(FORM_ENDPOINT, {
+          method:'POST',
+          headers:{'Content-Type':'application/json','Accept':'application/json'},
+          body: JSON.stringify(data)
+        });
+        if(!res.ok) throw new Error('send failed');
+        showSuccess();
+      }catch(err){
+        submitBtn.disabled = false;
+        submitBtn.textContent = '신청하기';
+        alert('전송에 실패했습니다. 잠시 후 다시 시도하시거나 전화로 문의해 주세요.');
+      }
+    } else {
+      const body =
+        '회사명: ' + data.company + '\n' +
+        '담당자: ' + data.name + '\n' +
+        '연락처: ' + data.phone + '\n' +
+        '이메일: ' + data.email + '\n' +
+        '검사 대상: ' + data.target + '\n' +
+        '현재 검사 방식: ' + (data.current || '-') + '\n' +
+        '양품 이미지: ' + (data.images || '-') + '\n' +
+        '문의 내용: ' + (data.memo || '-');
+      location.href = 'mailto:' + FALLBACK_MAIL
+        + '?subject=' + encodeURIComponent('[PoC 신청] ' + data.company)
+        + '&body=' + encodeURIComponent(body);
+      showSuccess();
+    }
+  });
+})();
+</script>
+</body>
+</html>
