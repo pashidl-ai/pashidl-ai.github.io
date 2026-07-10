@@ -312,6 +312,49 @@
   .success h3{font-size:20px;font-weight:800;margin-bottom:8px}
   .success p{font-size:14px;color:var(--dim);word-break:keep-all}
 
+  /* ── demo video ── */
+  .demo{
+    border-top:1px solid var(--line);
+    background:var(--panel2);
+  }
+  .demo-inner{
+    max-width:1080px;margin:0 auto;
+    padding:64px 24px;
+  }
+  .demo-head{margin-bottom:28px}
+  .demo-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);
+    font-size:12px;letter-spacing:.14em;
+    color:var(--scan);
+    border:1px solid var(--line);
+    padding:6px 12px;border-radius:2px;
+    margin-bottom:18px;
+  }
+  .demo-eyebrow::before{
+    content:"";width:6px;height:6px;border-radius:50%;
+    background:var(--scan);
+    animation:blink 2s infinite;
+  }
+  .demo-head h2{
+    font-size:clamp(24px,4vw,38px);
+    font-weight:900;line-height:1.2;
+    letter-spacing:-0.02em;
+    margin-bottom:12px;word-break:keep-all;
+  }
+  .demo-head .demo-sub{
+    font-size:clamp(15px,2vw,18px);
+    color:var(--dim);max-width:600px;
+    word-break:keep-all;
+  }
+  .demo-frame{
+    border:1px solid var(--line);
+    border-radius:8px;overflow:hidden;
+    background:#000;
+    box-shadow:0 12px 40px rgba(0,0,0,.4);
+  }
+  .demo-video{display:block;width:100%;height:auto}
+
   /* ── footer / company ── */
   .footer{
     border-top:1px solid var(--line);
@@ -446,6 +489,22 @@
     <a class="btn ghost" id="reportBtn" href="sample-report.pdf" download>샘플 검사 리포트 받기</a>
   </div>
   <p class="trust">설치 없이 원격 진행 · 스마트공장 지원사업 연계 가능 · 데이터는 PoC 종료 후 전량 폐기</p>
+</section>
+
+<section class="demo">
+  <div class="demo-inner">
+    <div class="demo-head">
+      <div class="demo-eyebrow">LIVE DEMO · 실제 검사 화면</div>
+      <h2>양품 업로드부터 불량 검출까지, 실제 화면으로</h2>
+      <p class="demo-sub">양품 이미지를 학습시키고, 실제 라인 제품에서 결함과 히트맵이 나오기까지의 전 과정입니다.</p>
+    </div>
+    <div class="demo-frame">
+      <video class="demo-video" controls autoplay muted loop playsinline preload="metadata">
+        <source src="video/demo.mp4" type="video/mp4">
+        브라우저가 video 태그를 지원하지 않습니다. <a href="video/demo.mp4">데모 영상 다운로드</a>
+      </video>
+    </div>
+  </div>
 </section>
 
 <footer class="footer">
@@ -677,7 +736,7 @@
      전송 URL을 넣으면 해당 주소로 POST 됩니다.
      비워두면 mailto로 폴백됩니다(수신 메일 주소 수정 필요).
   ──────────────────────────────────────────────── */
-  const FORM_ENDPOINT = 'https://formspree.io/f/xvzjjrjj';   // 예: 'https://formspree.io/f/xxxxxxx'
+  const FORM_ENDPOINT = '';                    // 예: 'https://formspree.io/f/xxxxxxx'
   const FALLBACK_MAIL = 'pashidl@naver.com';
 
   const overlay = document.getElementById('overlay');
