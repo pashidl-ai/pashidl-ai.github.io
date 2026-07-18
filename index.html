@@ -240,6 +240,12 @@
     color:var(--text);border:1px solid var(--line);
   }
   .btn.ghost:hover{border-color:var(--dim)}
+  .btn.kakao{
+    background:#FEE500;color:#191919;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn.kakao:hover{filter:brightness(.96)}
+  .btn.kakao svg{flex:none}
   .trust{
     font-size:13px;color:var(--dim);
     font-family:var(--mono);
@@ -472,6 +478,9 @@
   .faq-btn.primary:hover{filter:brightness(1.08)}
   .faq-btn.ghost{background:none;border:1px solid var(--line);color:var(--text)}
   .faq-btn.ghost:hover{border-color:var(--dim)}
+  .faq-btn.kakao{background:#FEE500;color:#191919}
+  .faq-btn.kakao:hover{filter:brightness(.96)}
+  .faq-btn.kakao svg{flex:none}
 
   /* ── footer / company ── */
   .footer{
@@ -491,6 +500,7 @@
   }
   .footer-cta p{font-size:18px;font-weight:800;word-break:keep-all}
   .footer-cta p span{color:var(--ok)}
+  .footer-cta-btns{display:flex;flex-wrap:wrap;gap:10px}
   .company{
     display:grid;
     grid-template-columns:1.2fr 1fr;
@@ -606,6 +616,10 @@
 
   <div class="cta-row">
     <button class="btn primary" id="pocBtn" type="button">48시간 무료 PoC 신청</button>
+    <a class="btn kakao" href="https://pf.kakao.com/_dLxifX/chat" target="_blank" rel="noopener noreferrer">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#3C1E1E" d="M12 3.2C6.6 3.2 2.2 6.7 2.2 11c0 2.8 1.9 5.2 4.7 6.6-.2.7-.7 2.6-.9 3-.2.6.2.6.5.4.2-.1 2.7-1.8 3.7-2.5.6.1 1.2.1 1.8.1 5.4 0 9.8-3.5 9.8-7.8S17.4 3.2 12 3.2z"/></svg>
+      카카오톡 상담
+    </a>
     <a class="btn ghost" id="reportBtn" href="sample-report.pdf" download>샘플 검사 리포트 받기</a>
   </div>
   <p class="trust">설치 없이 원격 진행 · 스마트공장 지원사업 연계 가능 · 데이터는 PoC 종료 후 전량 폐기</p>
@@ -681,6 +695,10 @@
           "우리 제품에서도 되는지" 확인하는 가장 확실한 방법입니다. 부담 없이 먼저 결과부터 받아보세요.
           <div class="faq-actions">
             <button class="faq-btn primary" id="pocBtn3" type="button">48시간 무료 PoC 신청</button>
+            <a class="faq-btn kakao" href="https://pf.kakao.com/_dLxifX/chat" target="_blank" rel="noopener noreferrer">
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="#3C1E1E" d="M12 3.2C6.6 3.2 2.2 6.7 2.2 11c0 2.8 1.9 5.2 4.7 6.6-.2.7-.7 2.6-.9 3-.2.6.2.6.5.4.2-.1 2.7-1.8 3.7-2.5.6.1 1.2.1 1.8.1 5.4 0 9.8-3.5 9.8-7.8S17.4 3.2 12 3.2z"/></svg>
+              카카오톡으로 문의
+            </a>
           </div>
         </div>
       </details>
@@ -694,7 +712,13 @@
 
     <div class="footer-cta">
       <p>양품 이미지 <span>300장</span>이면, 이번 주 안에 결과를 확인하실 수 있습니다.</p>
-      <button class="btn primary" id="pocBtn2" type="button">48시간 무료 PoC 신청</button>
+      <div class="footer-cta-btns">
+        <a class="btn kakao" href="https://pf.kakao.com/_dLxifX/chat" target="_blank" rel="noopener noreferrer">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#3C1E1E" d="M12 3.2C6.6 3.2 2.2 6.7 2.2 11c0 2.8 1.9 5.2 4.7 6.6-.2.7-.7 2.6-.9 3-.2.6.2.6.5.4.2-.1 2.7-1.8 3.7-2.5.6.1 1.2.1 1.8.1 5.4 0 9.8-3.5 9.8-7.8S17.4 3.2 12 3.2z"/></svg>
+          카카오톡 상담
+        </a>
+        <button class="btn primary" id="pocBtn2" type="button">48시간 무료 PoC 신청</button>
+      </div>
     </div>
 
     <div class="company">
@@ -723,7 +747,7 @@
 
     <div id="formWrap">
       <h2 id="mTitle">48시간 무료 PoC 신청</h2>
-      <p class="mdesc">아래 정보만 남겨주시면 담당 엔지니어가 당일 연락드립니다. 방문·설치 없이 원격으로 진행됩니다.</p>
+      <p class="mdesc">필수 입력은 <strong>회사명과 연락처</strong> 두 가지뿐입니다. 남겨주시면 담당 엔지니어가 당일 연락드립니다. 방문·설치 없이 원격으로 진행됩니다.</p>
 
       <form id="pocForm" novalidate>
         <div class="field" data-name="company">
@@ -732,28 +756,27 @@
           <div class="ferr">회사명을 입력해 주세요.</div>
         </div>
 
-        <div class="field" data-name="name">
-          <label>담당자 성함 / 직함 <span class="req">*</span></label>
-          <input type="text" name="name" placeholder="예: 김철수 품질팀장">
-          <div class="ferr">담당자 성함을 입력해 주세요.</div>
-        </div>
-
         <div class="field" data-name="phone">
           <label>연락처 <span class="req">*</span></label>
           <input type="tel" name="phone" placeholder="010-0000-0000">
+          <div class="hint">연락처와 이메일 중 하나만 입력하셔도 됩니다.</div>
           <div class="ferr">연락 가능한 번호를 입력해 주세요.</div>
         </div>
 
         <div class="field" data-name="email">
-          <label>이메일 <span class="req">*</span></label>
+          <label>이메일</label>
           <input type="email" name="email" placeholder="name@company.co.kr">
           <div class="ferr">올바른 이메일을 입력해 주세요.</div>
         </div>
 
+        <div class="field" data-name="name">
+          <label>담당자 성함 / 직함</label>
+          <input type="text" name="name" placeholder="예: 김철수 품질팀장 (선택)">
+        </div>
+
         <div class="field" data-name="target">
-          <label>검사 대상 제품 / 소재 <span class="req">*</span></label>
-          <input type="text" name="target" placeholder="예: 사출 플라스틱 커버, 금속 프레스 부품">
-          <div class="ferr">검사 대상을 간단히 적어주세요.</div>
+          <label>검사 대상 제품 / 소재</label>
+          <input type="text" name="target" placeholder="예: 사출 플라스틱 커버 (선택)">
         </div>
 
         <div class="field">
@@ -955,17 +978,44 @@
 
   function validate(){
     let ok = true;
-    const required = ['company','name','phone','email','target'];
-    required.forEach(n => {
-      const fieldBox = form.querySelector('.field[data-name="'+n+'"]');
-      const input = form.elements[n];
-      let valid = input.value.trim().length > 0;
-      if(n === 'email' && valid) valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(input.value.trim());
-      if(n === 'phone' && valid) valid = input.value.replace(/[^0-9]/g,'').length >= 9;
-      fieldBox.classList.toggle('invalid', !valid);
-      if(!valid && ok){ input.focus(); ok = false; }
-      else if(!valid){ ok = false; }
-    });
+    let firstInvalid = null;
+
+    // 회사명: 필수
+    const companyBox = form.querySelector('.field[data-name="company"]');
+    const company = form.elements['company'];
+    const companyValid = company.value.trim().length > 0;
+    companyBox.classList.toggle('invalid', !companyValid);
+    if(!companyValid){ ok = false; if(!firstInvalid) firstInvalid = company; }
+
+    // 연락처 / 이메일: 최소 하나 + 입력된 항목은 형식 검사
+    const phone = form.elements['phone'];
+    const email = form.elements['email'];
+    const phoneVal = phone.value.trim();
+    const emailVal = email.value.trim();
+    const phoneBox = form.querySelector('.field[data-name="phone"]');
+    const emailBox = form.querySelector('.field[data-name="email"]');
+    const phoneErr = phoneBox.querySelector('.ferr');
+
+    phoneBox.classList.remove('invalid');
+    emailBox.classList.remove('invalid');
+
+    if(!phoneVal && !emailVal){
+      phoneErr.textContent = '연락처 또는 이메일 중 하나는 꼭 입력해 주세요.';
+      phoneBox.classList.add('invalid');
+      ok = false; if(!firstInvalid) firstInvalid = phone;
+    } else {
+      if(phoneVal && phoneVal.replace(/[^0-9]/g,'').length < 9){
+        phoneErr.textContent = '연락 가능한 번호를 입력해 주세요.';
+        phoneBox.classList.add('invalid');
+        ok = false; if(!firstInvalid) firstInvalid = phone;
+      }
+      if(emailVal && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailVal)){
+        emailBox.classList.add('invalid');
+        ok = false; if(!firstInvalid) firstInvalid = email;
+      }
+    }
+
+    if(firstInvalid) firstInvalid.focus();
     return ok;
   }
 
