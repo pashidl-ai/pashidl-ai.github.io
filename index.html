@@ -378,6 +378,101 @@
   }
   .demo-video{display:block;width:100%;height:auto}
 
+  /* ── FAQ ── */
+  .faq{
+    border-top:1px solid var(--line);
+    background:var(--ink);
+  }
+  .faq-inner{
+    max-width:1080px;margin:0 auto;
+    padding:64px 24px;
+  }
+  .faq-head{margin-bottom:28px}
+  .faq-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);
+    font-size:12px;letter-spacing:.14em;
+    color:var(--scan);
+    border:1px solid var(--line);
+    padding:6px 12px;border-radius:2px;
+    margin-bottom:18px;
+  }
+  .faq-eyebrow::before{
+    content:"";width:6px;height:6px;border-radius:50%;
+    background:var(--scan);
+    animation:blink 2s infinite;
+  }
+  .faq-head h2{
+    font-size:clamp(24px,4vw,38px);
+    font-weight:900;line-height:1.2;
+    letter-spacing:-0.02em;
+    margin-bottom:12px;word-break:keep-all;
+  }
+  .faq-head .faq-sub{
+    font-size:clamp(15px,2vw,18px);
+    color:var(--dim);max-width:600px;
+    word-break:keep-all;
+  }
+  .faq-list{display:flex;flex-direction:column;gap:12px}
+  .faq-item{
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:var(--panel2);
+    overflow:hidden;
+  }
+  .faq-item summary{
+    list-style:none;cursor:pointer;
+    padding:18px 20px;
+    font-size:16px;font-weight:700;
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    word-break:keep-all;
+  }
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-item summary:hover{color:var(--scan)}
+  .faq-item summary::after{
+    content:"+";
+    font-family:var(--mono);font-size:22px;line-height:1;color:var(--scan);
+    flex:none;
+  }
+  .faq-item[open] summary::after{content:"\2212"}
+  .faq-item[open] summary{color:var(--scan)}
+  .faq-body{
+    padding:0 20px 20px;
+    font-size:14.5px;color:var(--dim);
+    line-height:1.8;word-break:keep-all;
+  }
+  .faq-body strong{color:var(--text);font-weight:700}
+  .blog-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .blog-link{
+    display:inline-flex;align-items:center;gap:8px;
+    text-decoration:none;
+    border:1px solid rgba(79,195,247,.4);
+    color:var(--scan);
+    padding:10px 14px;border-radius:4px;
+    font-size:13.5px;font-weight:600;
+    word-break:keep-all;
+  }
+  .blog-link:hover{background:rgba(79,195,247,.08)}
+  .blog-link::before{
+    content:"BLOG";flex:none;
+    font-family:var(--mono);font-size:10px;letter-spacing:.06em;
+    border:1px solid rgba(79,195,247,.4);
+    padding:1px 5px;border-radius:2px;
+  }
+  .blog-link::after{content:"\2197";font-size:14px;flex:none}
+  .faq-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .faq-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    text-decoration:none;cursor:pointer;
+    font-size:14px;font-weight:700;font-family:inherit;
+    padding:11px 18px;border-radius:4px;border:none;
+    word-break:keep-all;
+  }
+  .faq-btn.primary{background:var(--ok);color:#07130C}
+  .faq-btn.primary:hover{filter:brightness(1.08)}
+  .faq-btn.ghost{background:none;border:1px solid var(--line);color:var(--text)}
+  .faq-btn.ghost:hover{border-color:var(--dim)}
+
   /* ── footer / company ── */
   .footer{
     border-top:1px solid var(--line);
@@ -528,6 +623,68 @@
         <source src="video/demo.mp4" type="video/mp4">
         브라우저가 video 태그를 지원하지 않습니다. <a href="video/demo.mp4">데모 영상 다운로드</a>
       </video>
+    </div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="faq-inner">
+    <div class="faq-head">
+      <div class="faq-eyebrow">FAQ · 자주 묻는 질문</div>
+      <h2>도입 전에 궁금한 점, 먼저 확인하세요</h2>
+      <p class="faq-sub">양품학습과 머신비전 적용이 처음이시라면, 아래 내용부터 살펴보시면 이해가 빠릅니다.</p>
+    </div>
+
+    <div class="faq-list">
+
+      <details class="faq-item" open>
+        <summary>양품학습(정상 이미지만으로 학습)이 정확히 무엇인가요?</summary>
+        <div class="faq-body">
+          불량 샘플을 한 장도 모으지 않고, <strong>정상(양품) 이미지만으로 "정상의 기준"</strong>을 학습시키는 방식입니다.
+          학습된 기준에서 벗어나는 부분을 결함으로 판정하기 때문에, 불량 데이터 수집·라벨링 과정이 사라져 도입이 빠릅니다.
+          개념과 원리, 기존 딥러닝 방식과의 차이를 아래 글에 정리해 두었습니다.
+          <div class="blog-links">
+            <a class="blog-link" href="https://blog.naver.com/visiondev/224346374724" target="_blank" rel="noopener noreferrer">양품학습이란? 개념부터 원리까지</a>
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>우리 제품·공정에도 머신비전으로 적용할 수 있을까요?</summary>
+        <div class="faq-body">
+          표면 스크래치, 이물, 찍힘, 기포, 오염처럼 <strong>눈으로 구분되는 결함</strong>이라면 대부분 적용이 가능합니다.
+          제품 종류가 다양하거나 소량 생산이어도, 양품 이미지만 확보되면 학습이 됩니다.
+          머신비전이 실제 현장에 어떻게 적용되는지, 어떤 조건이 필요한지는 아래 글에서 확인하실 수 있습니다.
+          <div class="blog-links">
+            <a class="blog-link" href="https://blog.naver.com/visiondev/224346390916" target="_blank" rel="noopener noreferrer">머신비전, 우리 현장에 어떻게 적용되나</a>
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>실제 검사 결과물은 어떤 모습인가요? (검사 리포트 샘플)</summary>
+        <div class="faq-body">
+          도입을 결정하기 전에, 결과물의 수준을 먼저 확인해 보시길 권합니다.
+          <strong>결함 위치, 히트맵, 판정 결과</strong>가 담긴 실제 형식의 샘플 리포트를 지금 바로 내려받으실 수 있습니다.
+          말로 설명 듣는 것보다, 한 번 열어보시면 이 방식이 무엇을 산출하는지 가장 빠르게 이해되실 겁니다.
+          <div class="faq-actions">
+            <a class="faq-btn ghost" href="sample-report.pdf" download>샘플 검사 리포트 받기</a>
+          </div>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary>무료 PoC(사전 검증)는 어떻게 진행되나요?</summary>
+        <div class="faq-body">
+          양품 이미지 <strong>300장</strong>만 준비되면, 방문·설치 없이 <strong>원격으로 48시간 내</strong> 실제 검사 결과를 받아보실 수 있습니다.
+          비용은 들지 않고, 데이터는 PoC 종료 후 전량 폐기되므로 유출 걱정도 없습니다.
+          "우리 제품에서도 되는지" 확인하는 가장 확실한 방법입니다. 부담 없이 먼저 결과부터 받아보세요.
+          <div class="faq-actions">
+            <button class="faq-btn primary" id="pocBtn3" type="button">48시간 무료 PoC 신청</button>
+          </div>
+        </div>
+      </details>
+
     </div>
   </div>
 </section>
@@ -788,6 +945,8 @@
   pocBtn.addEventListener('click', open);
   const pocBtn2 = document.getElementById('pocBtn2');
   if(pocBtn2) pocBtn2.addEventListener('click', open);
+  const pocBtn3 = document.getElementById('pocBtn3');
+  if(pocBtn3) pocBtn3.addEventListener('click', open);
   mClose.addEventListener('click', close);
   overlay.addEventListener('click', e => { if(e.target === overlay) close(); });
   document.addEventListener('keydown', e => {
