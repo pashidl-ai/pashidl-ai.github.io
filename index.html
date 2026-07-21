@@ -22,12 +22,26 @@
   4) FAQ 블로그 링크 2개  (양품학습/머신비전 설명, 새 창으로 열림)
      https://blog.naver.com/visiondev/224346374724
      https://blog.naver.com/visiondev/224346390916
+
+  5) Microsoft Clarity 방문자 행동 분석  (<head> 상단 스크립트 + 맨 아래
+     버튼 클릭 이벤트 스크립트)  프로젝트 ID: xprmevbqpb
+     → 지우면 히트맵·세션녹화·버튼 클릭 통계가 끊김.
   ============================================================================
 -->
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Microsoft Clarity (방문자 행동 분석 · 히트맵/세션녹화) — 삭제 금지 -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "xprmevbqpb");
+</script>
+
 <meta name="naver-site-verification" content="ec0ade76fa1cd3293f928d4df05d2c11b4e51a59" />
 <meta name="google-site-verification" content="2raqUfFrIAeL1gEMx6we19MZmlwFOfzpb2GtvfSl7ps" />
 <title>불량 사진, 한 장도 필요 없습니다 — AI 표면검사</title>
@@ -1121,6 +1135,7 @@
   function showSuccess(){
     formWrap.style.display = 'none';
     successBox.classList.add('on');
+    try{ if(window.clarity) window.clarity('event', 'poc_submit_success'); }catch(e){}
   }
 
   form.addEventListener('submit', async function(e){
@@ -1160,6 +1175,25 @@
       showSuccess();
     }
   });
+})();
+</script>
+
+<script>
+/* Clarity 버튼별 클릭 이벤트 — 어느 CTA가 눌리는지 구분용 */
+(function(){
+  function ce(name){ try{ if(window.clarity) window.clarity('event', name); }catch(e){} }
+  function tag(sel, name){
+    document.querySelectorAll(sel).forEach(function(el){
+      el.addEventListener('click', function(){ ce(name); });
+    });
+  }
+  tag('#pocBtnTop', 'poc_click_hero_top');   // 첫 화면 상단 PoC
+  tag('#pocBtn',    'poc_click_hero');        // 히어로 하단 PoC
+  tag('#pocBtn2',   'poc_click_footer');      // 푸터 PoC
+  tag('#pocBtn3',   'poc_click_faq');         // FAQ 내 PoC
+  tag('a[href*="pf.kakao.com"]', 'kakao_click');       // 카카오톡 상담 3곳
+  tag('a[href="sample-report.pdf"]', 'report_download'); // 샘플 리포트 2곳
+  tag('a.blog-link', 'blog_click');           // FAQ 블로그 링크 2곳
 })();
 </script>
 </body>
